@@ -3,23 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kibo Modz Dashboard Pro - TEST MODE</title>
+    <title>Kibo Modz Dashboard Pro</title>
     <style>
-        :root { --bg: #111425; --card: #1a1f37; --input: #111425; --accent: #7c3aed; --text-gray: #94a3b8; }
+        :root { --bg: #111425; --card: #1a1f37; --input: #111425; --accent: #7c3aed; --text-gray: #94a3b8; --success: #10b981; }
         body { background-color: var(--bg); color: white; font-family: sans-serif; margin: 0; padding: 10px; }
+        
+        /* Màn hình nhập ID */
         #lock-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 90vh; }
-        .lock-box { background: var(--card); padding: 30px; border-radius: 12px; width: 90%; max-width: 350px; text-align: center; border: 1px solid #2d3748; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .lock-box { background: var(--card); padding: 30px; border-radius: 12px; width: 90%; max-width: 350px; text-align: center; border: 1px solid #2d3748; }
+
+        /* Màn hình Dashboard */
         #dashboard { display: none; background: var(--card); border-radius: 15px; padding: 20px; max-width: 800px; margin: 10px auto; border: 1px solid #2d3748; }
         .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         @media (max-width: 650px) { .grid-container { grid-template-columns: 1fr; } }
+
+        /* Khung thành công Cloudflare giống ảnh mẫu */
+        .success-box { background: white; color: #333; padding: 10px 15px; border-radius: 5px; display: none; align-items: center; gap: 10px; margin-bottom: 20px; text-align: left; }
+        .success-box img { width: 80px; margin-left: auto; }
+
         .input-group { margin-bottom: 12px; }
-        .label { font-size: 10px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; text-transform: uppercase; }
-        input, select { width: 100%; padding: 10px; background: var(--input); border: 1px solid #2d3748; color: white; border-radius: 8px; font-size: 13px; outline: none; box-sizing: border-box; }
-        .btn-save { grid-column: span 2; background: linear-gradient(to right, #6d28d9, #9333ea); border: none; padding: 15px; color: white; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; text-transform: uppercase; width: 100%; }
+        .label { font-size: 11px; font-weight: bold; color: var(--text-gray); margin-bottom: 6px; text-transform: uppercase; }
+        input { width: 100%; padding: 12px; background: var(--input); border: 1px solid #2d3748; color: white; border-radius: 8px; outline: none; box-sizing: border-box; }
+
+        /* Nút bấm */
+        .btn-save { grid-column: span 2; background: #7c3aed; border: none; padding: 15px; color: white; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-download { background: #24293e; color: #eee; border: 1px solid #3d4a66; padding: 12px; border-radius: 8px; width: 100%; margin-top: 10px; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+
         #cf-loading { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(17,20,37,0.98); z-index: 999; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .loader { border: 4px solid #2d3748; border-top: 4px solid #7c3aed; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        .loader { border: 4px solid #2d3748; border-top: 4px solid #7c3aed; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .tool-btn { flex: 1; background: #2d3748; color: #94a3b8; border: 1px solid #3d4a66; padding: 10px; border-radius: 6px; font-size: 11px; cursor: pointer; }
         footer { text-align: center; color: var(--text-gray); font-size: 10px; margin-top: 20px; }
     </style>
 </head>
@@ -27,73 +39,63 @@
 
     <div id="lock-screen">
         <div class="lock-box">
-            <h2 style="margin-top:0; color: #7c3aed; letter-spacing: 2px;">KIBO AUTH</h2>
-            <p style="font-size: 12px; color: var(--text-gray); margin-bottom: 20px;">VUI LÒNG NHẬP ID ĐỂ TIẾP TỤC</p>
+            <h2 style="color: #7c3aed;">KIBO AUTH</h2>
             <input type="number" id="user-id" placeholder="Nhập ID Game...">
-            <button onclick="testStep1()" style="background:#7c3aed; color:white; border:none; padding:12px; width:100%; border-radius:6px; margin-top:15px; font-weight:bold; cursor:pointer;">XÁC THỰC</button>
+            <button onclick="unlock()" style="background:#7c3aed; color:white; border:none; padding:12px; width:100%; border-radius:6px; margin-top:15px; font-weight:bold; cursor:pointer;">OK</button>
         </div>
     </div>
 
     <div id="dashboard">
+        <div id="success-status" class="success-box">
+            <span style="color: #10b981; font-size: 20px;">✔</span>
+            <div style="font-size: 13px;"><b>Thành công!</b><br><small style="color:#666">Cloudflare bảo mật riêng tư</small></div>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/a/ae/Cloudflare_Logo.svg" alt="cf">
+        </div>
+
         <div class="grid-container">
-            <div class="input-group"><div class="label">👤 DISPLAY NAME</div><input type="text" value="Boong Chu Pro"></div>
-            <div class="input-group"><div class="label">🆔 DISPLAY UID</div><input type="text" id="target-uid" readonly></div>
+            <div class="input-group"><div class="label">👤 DISPLAY NAME</div><input type="text" value="Boong Chu"></div>
+            <div class="input-group"><div class="label">🆔 UID</div><input type="text" id="target-uid" readonly></div>
             <div class="input-group"><div class="label">💎 DIAMONDS</div><input type="number" value="9999999"></div>
             <div class="input-group"><div class="label">🟡 GOLD</div><input type="number" value="999999999"></div>
-            <div class="input-group"><div class="label">🏆 RANK SCORE</div><input type="number" value="95600"></div>
-            <div class="input-group"><div class="label">⭐ LEVEL</div><input type="number" value="100"></div>
             
-            <div style="grid-column: span 2; margin-top: 10px;">
-                <p style="font-size:10px; color:#7c3aed; font-weight:bold; margin-bottom:8px;">HỖ TRỢ TẢI XUỐNG</p>
-                <div style="display: flex; gap: 10px;">
-                    <button class="tool-btn" onclick="alert('Đang tải Launcher...')">0xKIBO Launcher</button>
-                    <button class="tool-btn" onclick="alert('Đang tải Config...')">ProxyPin Config</button>
-                </div>
-            </div>
+            <button id="main-btn" class="btn-save" onclick="startMod()">💾 Lưu thay đổi</button>
+        </div>
 
-            <button class="btn-save" onclick="testStep2()">💾 LƯU VÀ KÍCH HOẠT MOD</button>
+        <div style="margin-top:25px;">
+            <p style="font-size:12px; color:var(--text-gray); font-weight:bold;">TẢI XUỐNG</p>
+            <button class="btn-download" onclick="window.location.href='https://link4m.co/cua_ban'"><span style="opacity:0.6">⬇</span> 0xKIBO Launcher</button>
+            <button class="btn-download" onclick="window.location.href='https://link4m.co/cua_ban'"><span style="opacity:0.6">⬇</span> ProxyPin Config</button>
         </div>
         <footer>© 2026 kibomodz.online</footer>
     </div>
 
     <div id="cf-loading">
         <div class="loader"></div>
-        <p id="loading-text" style="margin-top:20px; font-weight: bold; color: #7c3aed;"></p>
-        <p id="sub-text" style="font-size: 12px; color: var(--text-gray);"></p>
+        <p id="loading-text" style="margin-top:20px; font-weight: bold;">Đang đồng bộ hóa...</p>
     </div>
 
     <script>
-        function testStep1() {
+        function unlock() {
             let id = document.getElementById('user-id').value;
             if(id.length >= 5) {
                 document.getElementById('lock-screen').style.display = 'none';
-                document.getElementById('cf-loading').style.display = 'flex';
-                document.getElementById('loading-text').innerText = "CLOUDFLARE VERIFYING...";
-                document.getElementById('sub-text').innerText = "Đang kiểm tra bảo mật cho ID: " + id;
-                
-                setTimeout(() => {
-                    document.getElementById('cf-loading').style.display = 'none';
-                    document.getElementById('dashboard').style.display = 'block';
-                    document.getElementById('target-uid').value = id;
-                }, 2000);
-            } else { alert("ID không hợp lệ!"); }
+                document.getElementById('dashboard').style.display = 'block';
+                document.getElementById('target-uid').value = id;
+            } else { alert("Nhập ID đi bạn!"); }
         }
 
-        function testStep2() {
-            document.getElementById('dashboard').style.display = 'none';
+        function startMod() {
+            document.getElementById('main-btn').innerText = "Đang xử lý...";
             document.getElementById('cf-loading').style.display = 'flex';
-            document.getElementById('loading-text').innerText = "SENDING DATA TO SERVER...";
-            document.getElementById('sub-text').innerText = "Đang bơm dữ liệu Kim cương & Vàng...";
-
+            
             setTimeout(() => {
-                document.getElementById('loading-text').innerText = "MOD THÀNH CÔNG!";
-                document.getElementById('loading-text').style.color = "#10b981"; // Màu xanh lá
-                document.getElementById('sub-text').innerHTML = "Dữ liệu đã được gửi đến ID " + document.getElementById('target-uid').value + ".<br>Vui lòng chờ 24h để hệ thống cập nhật.";
-                // Ẩn vòng xoay khi xong
-                document.querySelector('.loader').style.display = 'none';
+                document.getElementById('cf-loading').style.display = 'none';
+                document.getElementById('success-status').style.display = 'flex'; // Hiện khung thành công
+                document.getElementById('main-btn').innerText = "ĐÃ KÍCH HOẠT";
+                document.getElementById('main-btn').style.background = "#10b981";
+                alert("Mod thành công cho ID: " + document.getElementById('target-uid').value);
             }, 3000);
         }
     </script>
 </body>
 </html>
-
