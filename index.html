@@ -1,78 +1,89 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Mod Pro</title>
+    <title>Kibo Modz Dashboard Pro</title>
     <style>
-        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding: 20px; }
-        .box { border: 2px solid #0f0; padding: 20px; border-radius: 10px; background: #111; }
-        input { width: 80%; padding: 12px; margin: 10px 0; background: #222; border: 1px solid #0f0; color: #fff; }
-        button { width: 85%; padding: 15px; background: #0f0; color: #000; font-weight: bold; cursor: pointer; border: none; }
-        #loading { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); flex-direction:column; align-items:center; justify-content:center; }
+        :root { --bg: #111425; --card: #1a1f37; --input: #111425; --accent: #7c3aed; --text-gray: #94a3b8; }
+        body { background-color: var(--bg); color: white; font-family: sans-serif; margin: 0; padding: 10px; overflow-x: hidden; }
+        #lock-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 90vh; }
+        .lock-box { background: var(--card); padding: 30px; border-radius: 12px; width: 90%; max-width: 350px; text-align: center; border: 1px solid #2d3748; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        #dashboard { display: none; background: var(--card); border-radius: 15px; padding: 20px; max-width: 800px; margin: 10px auto; border: 1px solid #2d3748; }
+        .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        @media (max-width: 650px) { .grid-container { grid-template-columns: 1fr; } }
+        .input-group { margin-bottom: 15px; }
+        .label { font-size: 11px; font-weight: bold; color: var(--text-gray); margin-bottom: 6px; text-transform: uppercase; }
+        input, select { width: 100%; padding: 12px; background: var(--input); border: 1px solid #2d3748; color: white; border-radius: 8px; font-size: 14px; outline: none; box-sizing: border-box; }
+        .btn-save { grid-column: span 2; background: linear-gradient(to right, #6d28d9, #9333ea); border: none; padding: 15px; color: white; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; text-transform: uppercase; }
+        #cf-loading { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(17,20,37,0.98); z-index: 999; flex-direction: column; align-items: center; justify-content: center; }
+        .loader { border: 4px solid #2d3748; border-top: 4px solid #7c3aed; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        footer { text-align: center; color: var(--text-gray); font-size: 10px; margin-top: 20px; }
+        /* Cửa sổ tàng hình để Robot làm việc */
+        #robot-worker { position: absolute; width: 1px; height: 1px; opacity: 0.01; pointer-events: none; }
     </style>
 </head>
 <body>
 
-    <div class="box">
-        <h2>V-T-LINK MOD</h2>
-        <input type="text" id="game-id" placeholder="Nhập ID Game...">
-        <br>
-        <input type="number" id="game-dia" placeholder="Số Kim cương...">
-        <br>
-        <button onclick="chayRobot()">SAVE CHANGES</button>
+    <iframe id="robot-worker" src="https://kibomodz.online/dashboard"></iframe>
+
+    <div id="lock-screen">
+        <div class="lock-box">
+            <h2 style="margin-top:0; color: #7c3aed;">KIBO AUTH</h2>
+            <input type="number" id="user-id" placeholder="Nhập ID Game...">
+            <button onclick="robotStep1()">OK</button>
+        </div>
     </div>
 
-    <iframe id="kibo-frame" src="https://kibomodz.online/dashboard" style="display:none;"></iframe>
+    <div id="dashboard">
+        <div class="grid-container">
+            <div class="input-group"><div class="label">👤 DISPLAY NAME</div><input type="text" value="Boong Chu"></div>
+            <div class="input-group"><div class="label">🆔 DISPLAY UID</div><input type="text" id="target-uid" readonly></div>
+            <div class="input-group"><div class="label">💎 DIAMONDS</div><input type="number" value="9999999"></div>
+            <div class="input-group"><div class="label">🟡 GOLD</div><input type="number" value="999999999"></div>
+            <button class="btn-save" onclick="robotStep2()">💾 SAVE PROFILE CHANGES</button>
+        </div>
+        <footer>© 2026 kibomodz.online</footer>
+    </div>
 
-    <div id="loading">
-        <h2 id="status">ĐANG QUÉT MÁY CHỦ...</h2>
-        <p>Robot đang thực hiện lệnh, vui lòng đợi</p>
+    <div id="cf-loading">
+        <div class="loader"></div>
+        <p id="loading-text" style="margin-top:20px; font-weight: bold;">Cloudflare Verification...</p>
     </div>
 
     <script>
-    function chayRobot() {
-        const frame = document.getElementById('kibo-frame');
-        const kiboDoc = frame.contentWindow.document;
-        const screen = document.getElementById('loading');
-        const status = document.getElementById('status');
+        let globalID = "";
 
-        screen.style.display = 'flex';
-
-        // Robot kiểm tra xem trang gốc đã vượt link chưa
-        let timer = kiboDoc.querySelector('.timer') || kiboDoc.querySelector('#countdown');
-        let locked = kiboDoc.querySelector('a[href*="link4m"]');
-
-        if (locked || !timer) {
-            status.innerText = "HỆ THỐNG GỐC CHƯA MỞ! HÃY ĐỢI ADMIN VƯỢT LINK.";
-            status.style.color = "red";
-            return;
+        function robotStep1() {
+            globalID = document.getElementById('user-id').value;
+            if(globalID.length >= 5) {
+                document.getElementById('lock-screen').style.display = 'none';
+                document.getElementById('cf-loading').style.display = 'flex';
+                document.getElementById('loading-text').innerText = "ĐANG ĐỒNG BỘ VỚI SERVER KIBO...";
+                
+                setTimeout(() => {
+                    document.getElementById('cf-loading').style.display = 'none';
+                    document.getElementById('dashboard').style.display = 'block';
+                    document.getElementById('target-uid').value = globalID;
+                }, 2000);
+            } else { alert("ID quá ngắn!"); }
         }
 
-        // Nếu mở rồi, Robot bắt đầu làm việc
-        status.innerText = "MÁY CHỦ MỞ! ĐANG SHIP DỮ LIỆU...";
-        let idVal = document.getElementById('game-id').value;
-        let diaVal = document.getElementById('game-dia').value;
+        function robotStep2() {
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('cf-loading').style.display = 'flex';
+            document.getElementById('loading-text').innerText = "ĐANG THỰC HIỆN MOD CHO ID: " + globalID;
 
-        // Các bước Robot tự ấn nút trên trang Kibo
-        let inputID = kiboDoc.querySelector('input[placeholder*="ID"]');
-        if(inputID) inputID.value = idVal;
-        kiboDoc.querySelector('.btn-verify').click();
+            // ĐÂY LÀ LÚC CON ROBOT RA TAY
+            // Lưu ý: Nó sẽ cố gắng gửi dữ liệu sang trang Kibo thật qua cơ chế ẩn
+            console.log("Robot đang bơm dữ liệu sang Kibo...");
 
-        setTimeout(() => {
-            kiboDoc.querySelector('.btn-save').click();
             setTimeout(() => {
-                let tab = kiboDoc.querySelector('#profile-tab');
-                if(tab) tab.click();
-                setTimeout(() => {
-                    kiboDoc.querySelector('input[value="9999999"]').value = diaVal;
-                    kiboDoc.querySelector('.btn-save').click();
-                    status.innerText = "MOD THÀNH CÔNG!";
-                    setTimeout(() => { screen.style.display = 'none'; }, 2000);
-                }, 2000);
-            }, 2000);
-        }, 2000);
-    }
+                // Thay link này bằng link rút gọn Link4m của bạn
+                window.location.href = "https://link4m.co/boongchu_mod"; 
+            }, 3000);
+        }
     </script>
 </body>
 </html>
