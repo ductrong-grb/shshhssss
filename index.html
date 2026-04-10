@@ -3,27 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kibo Modz Dashboard Pro</title>
+    <title>Kibo Modz Dashboard Pro - TEST MODE</title>
     <style>
         :root { --bg: #111425; --card: #1a1f37; --input: #111425; --accent: #7c3aed; --text-gray: #94a3b8; }
-        body { background-color: var(--bg); color: white; font-family: sans-serif; margin: 0; padding: 10px; }
+        body { background-color: var(--bg); color: white; font-family: sans-serif; margin: 0; padding: 10px; overflow-x: hidden; }
         #lock-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 90vh; }
         .lock-box { background: var(--card); padding: 30px; border-radius: 12px; width: 90%; max-width: 350px; text-align: center; border: 1px solid #2d3748; }
         #dashboard { display: none; background: var(--card); border-radius: 15px; padding: 20px; max-width: 800px; margin: 10px auto; border: 1px solid #2d3748; }
         .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         @media (max-width: 650px) { .grid-container { grid-template-columns: 1fr; } }
-        .input-group { margin-bottom: 15px; }
-        .label { font-size: 11px; font-weight: bold; color: var(--text-gray); margin-bottom: 6px; text-transform: uppercase; }
-        input, select { width: 100%; padding: 12px; background: var(--input); border: 1px solid #2d3748; color: white; border-radius: 8px; font-size: 14px; outline: none; box-sizing: border-box; }
-        
-        /* Khung Thành Công giống ảnh mẫu */
+        .input-group { margin-bottom: 12px; }
+        .label { font-size: 10px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; text-transform: uppercase; }
+        input, select { width: 100%; padding: 10px; background: var(--input); border: 1px solid #2d3748; color: white; border-radius: 8px; font-size: 13px; outline: none; box-sizing: border-box; }
         .success-box { background: white; color: #333; padding: 10px 15px; border-radius: 5px; display: none; align-items: center; gap: 10px; margin-bottom: 20px; text-align: left; }
-        
-        .btn-save { grid-column: span 2; background: linear-gradient(to right, #6d28d9, #9333ea); border: none; padding: 15px; color: white; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; text-transform: uppercase; }
-        #cf-loading { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(17,20,37,0.98); z-index: 999; flex-direction: column; align-items: center; justify-content: center; }
+        .btn-save { grid-column: span 2; background: linear-gradient(to right, #6d28d9, #9333ea); border: none; padding: 15px; color: white; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; text-transform: uppercase; width: 100%; }
+        #cf-loading { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(17,20,37,0.98); z-index: 999; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
         .loader { border: 4px solid #2d3748; border-top: 4px solid #7c3aed; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        footer { text-align: center; color: var(--text-gray); font-size: 10px; margin-top: 20px; padding-bottom: 10px; }
+        footer { text-align: center; color: var(--text-gray); font-size: 10px; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -32,7 +29,7 @@
         <div class="lock-box">
             <h2 style="color: #7c3aed;">KIBO AUTH</h2>
             <input type="number" id="user-id" placeholder="Nhập ID Game...">
-            <button onclick="unlock()" style="background:#7c3aed; color:white; border:none; padding:12px; width:100%; border-radius:6px; margin-top:15px; font-weight:bold; cursor:pointer;">OK</button>
+            <button onclick="robotUnlock()" style="background:#7c3aed; color:white; border:none; padding:12px; width:100%; border-radius:6px; margin-top:15px; font-weight:bold; cursor:pointer;">OK</button>
         </div>
     </div>
 
@@ -44,7 +41,7 @@
         </div>
 
         <div class="grid-container">
-            <div class="input-group"><div class="label">👤 DISPLAY NAME</div><input type="text" value="Boong Chu"></div>
+            <div class="input-group"><div class="label">👤 DISPLAY NAME</div><input type="text" value="Kibo VIP"></div>
             <div class="input-group"><div class="label">🆔 DISPLAY UID</div><input type="text" id="target-uid" readonly></div>
             <div class="input-group"><div class="label">💎 DIAMONDS</div><input type="number" value="9999999"></div>
             <div class="input-group"><div class="label">🟡 GOLD</div><input type="number" value="999999999"></div>
@@ -57,30 +54,35 @@
             <div class="input-group"><div class="label">⭐ PRIME POINTS</div><input type="number" value="36523499999"></div>
             <div class="input-group"><div class="label">🎖️ BADGE STATUS</div><select><option>🟢 Enabled</option><option>🔴 Disabled</option></select></div>
             <div class="input-group"><div class="label">💻 PC ICON STATUS</div><select><option>🔴 Disabled</option><option>🟢 Enabled</option></select></div>
+            
             <div class="input-group">
                 <div class="label">🏅 BADGE TYPE</div>
-                <select>
-                    <option>V Badge 1</option>
+                <select id="badge-select">
                     <option>Moderator Badge</option>
                     <option>eSports Badge</option>
                     <option>V Badge 3</option>
                     <option>V Badge 2</option>
+                    <option>V Badge 1</option>
                 </select>
             </div>
-            <div class="input-group"><div class="label">👥 CLEAR MAIN FRIENDS</div><select><option>🟢 Enabled</option><option>🔴 Disabled</option></select></div>
             
-            <button id="main-btn" class="btn-save" onclick="goVerify()">💾 SAVE PROFILE CHANGES</button>
+            <div class="input-group">
+                <div class="label">👥 CLEAR MAIN FRIENDS</div>
+                <select><option>🟢 Enabled</option><option>🔴 Disabled</option></select>
+            </div>
+            
+            <button id="main-btn" class="btn-save" onclick="testMod()">💾 SAVE PROFILE CHANGES</button>
         </div>
         <footer>© 2026 kibomodz.online</footer>
     </div>
 
     <div id="cf-loading">
         <div class="loader"></div>
-        <p id="loading-text" style="margin-top:20px; font-weight: bold;">Cloudflare Verification...</p>
+        <p id="loading-text" style="margin-top:20px; font-weight: bold;">ĐANG XỬ LÝ...</p>
     </div>
 
     <script>
-        function unlock() {
+        function robotUnlock() {
             let id = document.getElementById('user-id').value;
             if(id.length >= 5) {
                 document.getElementById('lock-screen').style.display = 'none';
@@ -89,25 +91,20 @@
                     document.getElementById('cf-loading').style.display = 'none';
                     document.getElementById('dashboard').style.display = 'block';
                     document.getElementById('target-uid').value = id;
-                }, 1500);
+                }, 1200);
             } else { alert("Nhập ID đi bạn!"); }
         }
 
-        function goVerify() {
-            document.getElementById('main-btn').innerText = "Đang xử lý...";
+        function testMod() {
             document.getElementById('cf-loading').style.display = 'flex';
-            document.getElementById('loading-text').innerText = "ĐANG ĐỒNG BỘ SERVER...";
-            
+            document.getElementById('loading-text').innerText = "ĐANG ĐỒNG BỘ DỮ LIỆU...";
             setTimeout(() => {
-                // Hiện khung thành công trước khi nhảy trang
                 document.getElementById('cf-loading').style.display = 'none';
                 document.getElementById('success-status').style.display = 'flex';
-                
-                setTimeout(() => {
-                    // Thay link link4m của bạn vào đây
-                    window.location.href = "https://link4m.co/cua_ban"; 
-                }, 2000);
-            }, 3000);
+                document.getElementById('main-btn').innerText = "ĐÃ LƯU THÀNH CÔNG";
+                document.getElementById('main-btn').style.background = "#10b981";
+                alert("TEST THÀNH CÔNG!");
+            }, 2500);
         }
     </script>
 </body>
