@@ -5,34 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kibo Modz Dashboard Pro</title>
     <style>
-        :root { --bg: #111425; --card: #1a1f37; --input: #111425; --accent: #7c3aed; --text-gray: #94a3b8; --success: #10b981; }
+        :root { --bg: #111425; --card: #1a1f37; --input: #111425; --accent: #7c3aed; --text-gray: #94a3b8; }
         body { background-color: var(--bg); color: white; font-family: sans-serif; margin: 0; padding: 10px; }
-        
-        /* Màn hình nhập ID */
         #lock-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 90vh; }
         .lock-box { background: var(--card); padding: 30px; border-radius: 12px; width: 90%; max-width: 350px; text-align: center; border: 1px solid #2d3748; }
-
-        /* Màn hình Dashboard */
         #dashboard { display: none; background: var(--card); border-radius: 15px; padding: 20px; max-width: 800px; margin: 10px auto; border: 1px solid #2d3748; }
         .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         @media (max-width: 650px) { .grid-container { grid-template-columns: 1fr; } }
-
-        /* Khung thành công Cloudflare giống ảnh mẫu */
+        .input-group { margin-bottom: 15px; }
+        .label { font-size: 11px; font-weight: bold; color: var(--text-gray); margin-bottom: 6px; text-transform: uppercase; display: flex; align-items: center; gap: 5px; }
+        input, select { width: 100%; padding: 12px; background: var(--input); border: 1px solid #2d3748; color: white; border-radius: 8px; font-size: 14px; outline: none; box-sizing: border-box; }
+        
+        /* Khung Cloudflare Thành công */
         .success-box { background: white; color: #333; padding: 10px 15px; border-radius: 5px; display: none; align-items: center; gap: 10px; margin-bottom: 20px; text-align: left; }
-        .success-box img { width: 80px; margin-left: auto; }
-
-        .input-group { margin-bottom: 12px; }
-        .label { font-size: 11px; font-weight: bold; color: var(--text-gray); margin-bottom: 6px; text-transform: uppercase; }
-        input { width: 100%; padding: 12px; background: var(--input); border: 1px solid #2d3748; color: white; border-radius: 8px; outline: none; box-sizing: border-box; }
-
-        /* Nút bấm */
-        .btn-save { grid-column: span 2; background: #7c3aed; border: none; padding: 15px; color: white; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-download { background: #24293e; color: #eee; border: 1px solid #3d4a66; padding: 12px; border-radius: 8px; width: 100%; margin-top: 10px; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
-
+        
+        .btn-save { grid-column: span 2; background: linear-gradient(to right, #6d28d9, #9333ea); border: none; padding: 15px; color: white; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; text-transform: uppercase; }
+        .btn-tool { background: #24293e; color: #eee; border: 1px solid #3d4a66; padding: 12px; border-radius: 8px; width: 100%; margin-top: 10px; font-size: 13px; cursor: pointer; }
+        
         #cf-loading { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(17,20,37,0.98); z-index: 999; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
         .loader { border: 4px solid #2d3748; border-top: 4px solid #7c3aed; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        footer { text-align: center; color: var(--text-gray); font-size: 10px; margin-top: 20px; }
+        footer { text-align: center; color: var(--text-gray); font-size: 10px; margin-top: 20px; padding-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -41,7 +34,7 @@
         <div class="lock-box">
             <h2 style="color: #7c3aed;">KIBO AUTH</h2>
             <input type="number" id="user-id" placeholder="Nhập ID Game...">
-            <button onclick="unlock()" style="background:#7c3aed; color:white; border:none; padding:12px; width:100%; border-radius:6px; margin-top:15px; font-weight:bold; cursor:pointer;">OK</button>
+            <button onclick="robotUnlock()" style="background:#7c3aed; color:white; border:none; padding:12px; width:100%; border-radius:6px; margin-top:15px; font-weight:bold; cursor:pointer;">OK</button>
         </div>
     </div>
 
@@ -49,52 +42,75 @@
         <div id="success-status" class="success-box">
             <span style="color: #10b981; font-size: 20px;">✔</span>
             <div style="font-size: 13px;"><b>Thành công!</b><br><small style="color:#666">Cloudflare bảo mật riêng tư</small></div>
-            <img src="https://upload.wikimedia.org/wikipedia/commons/a/ae/Cloudflare_Logo.svg" alt="cf">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/a/ae/Cloudflare_Logo.svg" alt="cf" style="width: 70px; margin-left: auto;">
         </div>
 
         <div class="grid-container">
             <div class="input-group"><div class="label">👤 DISPLAY NAME</div><input type="text" value="Boong Chu"></div>
-            <div class="input-group"><div class="label">🆔 UID</div><input type="text" id="target-uid" readonly></div>
+            <div class="input-group"><div class="label">🆔 DISPLAY UID</div><input type="text" id="target-uid" readonly></div>
             <div class="input-group"><div class="label">💎 DIAMONDS</div><input type="number" value="9999999"></div>
             <div class="input-group"><div class="label">🟡 GOLD</div><input type="number" value="999999999"></div>
+            <div class="input-group"><div class="label">👍 LIKES</div><input type="number" value="999999"></div>
+            <div class="input-group"><div class="label">🏆 RANK SCORE</div><input type="number" value="91119"></div>
+            <div class="input-group"><div class="label">📍 RANK POSITION</div><input type="number" value="1"></div>
+            <div class="input-group"><div class="label">📍 CS RANK POSITION</div><input type="number" value="1"></div>
+            <div class="input-group"><div class="label">⭐ LEVEL</div><input type="number" value="99"></div>
+            <div class="input-group"><div class="label">⭐ PRIME LEVEL</div><input type="number" value="99"></div>
+            <div class="input-group"><div class="label">⭐ PRIME POINTS</div><input type="number" value="36523499999"></div>
+            <div class="input-group"><div class="label">🎖️ BADGE STATUS</div><select><option>🟢 Enabled</option><option>🔴 Disabled</option></select></div>
+            <div class="input-group"><div class="label">💻 PC ICON STATUS</div><select><option>🔴 Disabled</option><option>🟢 Enabled</option></select></div>
+            <div class="input-group"><div class="label">🏅 BADGE TYPE</div><select><option>V Badge 1</option><option>Moderator Badge</option><option>eSports Badge</option></select></div>
+            <div class="input-group"><div class="label">👥 CLEAR MAIN FRIENDS</div><select><option>🟢 Enabled</option></select></div>
             
-            <button id="main-btn" class="btn-save" onclick="startMod()">💾 Lưu thay đổi</button>
+            <button id="main-btn" class="btn-save" onclick="robotRun()">💾 SAVE PROFILE CHANGES</button>
         </div>
 
         <div style="margin-top:25px;">
             <p style="font-size:12px; color:var(--text-gray); font-weight:bold;">TẢI XUỐNG</p>
-            <button class="btn-download" onclick="window.location.href='https://link4m.co/cua_ban'"><span style="opacity:0.6">⬇</span> 0xKIBO Launcher</button>
-            <button class="btn-download" onclick="window.location.href='https://link4m.co/cua_ban'"><span style="opacity:0.6">⬇</span> ProxyPin Config</button>
+            <button class="btn-tool" onclick="alert('Đang chuẩn bị link tải Launcher...')">↓ 0xKIBO Launcher</button>
+            <button class="btn-tool" onclick="alert('Đang chuẩn bị link tải ProxyPin...')">↓ ProxyPin Config</button>
         </div>
         <footer>© 2026 kibomodz.online</footer>
     </div>
 
     <div id="cf-loading">
         <div class="loader"></div>
-        <p id="loading-text" style="margin-top:20px; font-weight: bold;">Đang đồng bộ hóa...</p>
+        <p id="loading-text" style="margin-top:20px; font-weight: bold;">Cloudflare Verification...</p>
     </div>
 
     <script>
-        function unlock() {
+        function robotUnlock() {
             let id = document.getElementById('user-id').value;
             if(id.length >= 5) {
                 document.getElementById('lock-screen').style.display = 'none';
-                document.getElementById('dashboard').style.display = 'block';
-                document.getElementById('target-uid').value = id;
-            } else { alert("Nhập ID đi bạn!"); }
+                document.getElementById('cf-loading').style.display = 'flex';
+                setTimeout(() => {
+                    document.getElementById('cf-loading').style.display = 'none';
+                    document.getElementById('dashboard').style.display = 'block';
+                    document.getElementById('target-uid').value = id;
+                }, 1500);
+            } else { alert("Vui lòng nhập ID!"); }
         }
 
-        function startMod() {
-            document.getElementById('main-btn').innerText = "Đang xử lý...";
+        function robotRun() {
             document.getElementById('cf-loading').style.display = 'flex';
+            document.getElementById('loading-text').innerText = "ĐANG ĐỒNG BỘ DỮ LIỆU...";
             
             setTimeout(() => {
-                document.getElementById('cf-loading').style.display = 'none';
-                document.getElementById('success-status').style.display = 'flex'; // Hiện khung thành công
-                document.getElementById('main-btn').innerText = "ĐÃ KÍCH HOẠT";
-                document.getElementById('main-btn').style.background = "#10b981";
-                alert("Mod thành công cho ID: " + document.getElementById('target-uid').value);
+                // Robot "bế" ID sang trang đích sau khi vượt link
+                // Bạn thay link Link4m của bạn vào đây
+                window.location.href = "https://link4m.co/cua_ban"; 
             }, 3000);
+        }
+
+        // Tự động hiện Thành công nếu quay lại từ Link4m (Dựa trên code gốc của bạn)
+        window.onload = function() {
+            if(document.referrer.includes("link4m.co")) {
+                document.getElementById('lock-screen').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                document.getElementById('success-status').style.display = 'flex';
+                alert("Mod thành công! Dữ liệu sẽ cập nhật trong 24h.");
+            }
         }
     </script>
 </body>
